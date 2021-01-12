@@ -2,10 +2,14 @@ import "./styles.css";
 
 const CANVAS_WIDTH = 500;
 const CANVAS_HEIGHT = 500;
-const GUN_SIZE = 10;
+const SHOOTER_SIZE = 10;
+const ENEMY_SIZE = 10;
 const BULLET_SIZE = 5;
 const ENEMY_LIMIT = 5;
-const ENEMY_PACE = 0.5;
+const ENEMY_PACE = 0.35;
+const SHOOTER_COLOR = "blue";
+const ENEMY_COLOR = "red";
+const BULLET_COLOR = "orange";
 
 class Enemy {
   constructor(x, y) {
@@ -25,7 +29,7 @@ class Enemy {
   }
 
   hasReachedTarget() {
-    return this.y >= CANVAS_HEIGHT - 2 * GUN_SIZE;
+    return this.y >= CANVAS_HEIGHT - SHOOTER_SIZE;
   }
 
   isHit() {
@@ -59,15 +63,18 @@ class Bullet {
 class Shooter {
   constructor() {
     this.x = CANVAS_WIDTH / 2;
-    this.y = CANVAS_HEIGHT - GUN_SIZE;
+    this.y = CANVAS_HEIGHT - SHOOTER_SIZE;
     this.score = 0;
   }
 
   move(direction) {
-    if (this.x >= GUN_SIZE && direction === "left") {
-      this.x -= GUN_SIZE;
-    } else if (this.x <= CANVAS_WIDTH - 2 * GUN_SIZE && direction === "right") {
-      this.x += GUN_SIZE;
+    if (this.x >= SHOOTER_SIZE && direction === "left") {
+      this.x -= SHOOTER_SIZE;
+    } else if (
+      this.x <= CANVAS_WIDTH - 2 * SHOOTER_SIZE &&
+      direction === "right"
+    ) {
+      this.x += SHOOTER_SIZE;
     }
   }
 
@@ -91,18 +98,24 @@ class Shooter {
 class ShootingGame {
   constructor(div) {
     this.container = div;
+  }
+
+  init() {
     this.shooter = new Shooter();
     this.bullets = [];
     this.enemies = [];
     this.gameOver = false;
-  }
-
-  init() {
+    this.prevRandom = 0;
+    this.gamePaused = false;
     this.initDom();
   }
 
   getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
+    let randomNumber = Math.floor(Math.random() * Math.floor(max));
+    if (this.prevRandom !== randomNumber) {
+      return randomNumber;
+    }
+    return this.getRandomInt(max);
   }
 
   initDom() {
@@ -117,27 +130,48 @@ class ShootingGame {
     this.gameStatus.innerHTML = "Game Started";
     this.score = document.createElement("div");
 
+    this.buttonDiv = document.createElement("div");
+    this.gamePauseButton = document.createElement("button");
+    this.gamePauseButton.innerHTML = "Pause Game";
+    this.gameRestartButton = document.createElement("button");
+    this.gameRestartButton.innerHTML = "Restart Game";
+
+    this.buttonDiv.append(this.gamePauseButton);
+    this.buttonDiv.append(this.gameRestartButton);
+
     this.container.append(this.gameStatus);
     this.container.append(this.score);
+    this.container.append(this.buttonDiv);
     this.container.append(this.canvas);
 
-    for (let i = 0; i < ENEMY_LIMIT; i++) {
-      this.enemies.push(
-        new Enemy(
-          this.getRandomInt((CANVAS_WIDTH - 2 * GUN_SIZE) * Math.random()),
-          0
-        )
-      );
-    }
-
+    this.createEnemies();
     this.addEventListeners();
     window.requestAnimationFrame(() => {
       this.draw();
     });
   }
 
+  createEnemies() {
+    for (let i = 0; i < ENEMY_LIMIT; i++) {
+      this.enemies.push(
+        new Enemy(
+          this.getRandomInt((CANVAS_WIDTH - 2 * SHOOTER_SIZE) * Math.random()),
+          0
+        )
+      );
+    }
+  }
+
   addEventListeners() {
     let self = this;
+    this.gamePauseButton.addEventListener("click", () => {
+      self.gamePaused = !self.gamePaused;
+    });
+
+    this.gameRestartButton.addEventListener("click", () => {
+      self.container.replaceChildren();
+      self.init();
+    });
     document.addEventListener("keydown", (evt) => {
       if (evt.keyCode === 37) {
         self.shooter.move("left");
@@ -154,21 +188,23 @@ class ShootingGame {
   draw() {
     let self = this;
 
-    if (!this.gameOver) {
-      this.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    if (!this.gamePaused) {
+      if (!this.gameOver) {
+        this.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      this.drawShooter();
+        this.drawShooter();
 
-      this.drawBullets();
+        this.drawBullets();
 
-      this.drawEnemies();
+        this.drawEnemies();
 
-      this.detectHits();
+        this.detectHits();
 
-      this.purgeBullets();
+        this.purgeBullets();
 
-      this.detectGameOver();
-    } else {
+        this.detectGameOver();
+      } else {
+      }
     }
 
     window.requestAnimationFrame(() => {
@@ -194,7 +230,8 @@ class ShootingGame {
     for (let index in this.enemies) {
       if (
         bullet.getPosition().x >= this.enemies[index].getPosition().x &&
-        bullet.getPosition().x <= this.enemies[index].getPosition().x + 10 &&
+        bullet.getPosition().x <=
+          this.enemies[index].getPosition().x + ENEMY_SIZE &&
         bullet.getPosition().y === this.enemies[index].getPosition().y
       ) {
         hits.push(index);
@@ -207,15 +244,17 @@ class ShootingGame {
 
   drawShooter() {
     //draw the shooter
+    this.context.fillStyle = SHOOTER_COLOR;
     this.context.fillRect(
       this.shooter.getPosition().x,
       this.shooter.getPosition().y,
-      GUN_SIZE,
-      GUN_SIZE
+      SHOOTER_SIZE,
+      SHOOTER_SIZE
     );
   }
 
   drawBullets() {
+    this.context.fillStyle = BULLET_COLOR;
     for (let bullet of this.bullets) {
       bullet.moveForward();
       this.context.fillRect(
@@ -228,14 +267,18 @@ class ShootingGame {
   }
 
   drawEnemies() {
+    if (this.enemies.length === 0) {
+      this.createEnemies();
+    }
+    this.context.fillStyle = ENEMY_COLOR;
     for (let enemy of this.enemies) {
       if (!enemy.isHit()) {
         enemy.moveForward();
         this.context.fillRect(
           enemy.getPosition().x,
           enemy.getPosition().y,
-          GUN_SIZE,
-          GUN_SIZE
+          ENEMY_SIZE,
+          ENEMY_SIZE
         );
       }
     }
