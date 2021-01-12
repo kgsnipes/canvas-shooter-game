@@ -1,5 +1,12 @@
 import "./styles.css";
 
+/*
+Description: i am bored, trying to have some fun.
+
+Author : kaushik ganguly
+
+*/
+
 //defines global game constants
 //canvas width in pixels
 const CANVAS_WIDTH = 300;
@@ -79,14 +86,17 @@ class Bullet {
   }
 }
 
+//defining the shooter
 class Shooter {
   constructor() {
+    //setting initial position to the center of the canvas.
     this.x = CANVAS_WIDTH / 2;
     this.y = CANVAS_HEIGHT - SHOOTER_SIZE;
     this.score = 0;
   }
 
   move(direction) {
+    //checking for boundaries and moving within it.
     if (this.x >= SHOOTER_SIZE && direction === "left") {
       this.x -= SHOOTER_SIZE;
     } else if (
@@ -101,10 +111,12 @@ class Shooter {
     return { x: this.x, y: this.y };
   }
 
+  // shooting a bullet
   shoot() {
     return new Bullet({ x: this.x, y: this.y });
   }
 
+  //adding to score
   incrementScore() {
     this.score++;
   }
@@ -114,29 +126,39 @@ class Shooter {
   }
 }
 
+//defining the main game.
 class ShootingGame {
   constructor(div) {
     this.container = div;
   }
 
   init() {
+    //creating the shooter.
     this.shooter = new Shooter();
+    //list to track the bullets
     this.bullets = [];
+    //list to track the enemies
     this.enemies = [];
+    //flag to check if the game is over/ if enemy has breached the walls.
     this.gameOver = false;
+    //storing the previous random number generated to compare with newly created random number.
     this.prevRandom = 0;
+    //flag to store the game pause state
     this.gamePaused = false;
+    //initializing dom
     this.initDom();
   }
 
-  getRandomInt(max) {
+  //getting a random number that is different from the previous
+  getRandomNumber(max) {
     let randomNumber = Math.floor(Math.random() * Math.floor(max));
     if (this.prevRandom !== randomNumber) {
       return randomNumber;
     }
-    return this.getRandomInt(max);
+    return this.getRandomNumber(max);
   }
 
+  //initializing the game controls and canvas.
   initDom() {
     this.canvas = document.createElement("canvas");
     this.canvas.id = "shooting-game";
@@ -155,6 +177,10 @@ class ShootingGame {
     this.gameRestartButton = document.createElement("button");
     this.gameRestartButton.innerHTML = "Restart Game";
 
+    this.instructionsDiv = document.createElement("div");
+    this.instructionsDiv.innerHTML =
+      " Instructions : Use the right/left arrow to move and space bar to shoot.";
+
     this.buttonDiv.append(this.gamePauseButton);
     this.buttonDiv.append(this.gameRestartButton);
 
@@ -162,9 +188,13 @@ class ShootingGame {
     this.container.append(this.score);
     this.container.append(this.buttonDiv);
     this.container.append(this.canvas);
+    this.container.append(this.instructionsDiv);
 
+    // creating the enemies
     this.createEnemies();
+    //adding event listeners for gaming and
     this.addEventListeners();
+    //registering the animation frame rendering
     window.requestAnimationFrame(() => {
       this.draw();
     });
@@ -174,7 +204,9 @@ class ShootingGame {
     for (let i = 0; i < ENEMY_LIMIT; i++) {
       this.enemies.push(
         new Enemy(
-          this.getRandomInt((CANVAS_WIDTH - 2 * SHOOTER_SIZE) * Math.random()),
+          this.getRandomNumber(
+            (CANVAS_WIDTH - 2 * SHOOTER_SIZE) * Math.random()
+          ),
           0
         )
       );
@@ -220,6 +252,10 @@ class ShootingGame {
         this.detectHits();
 
         this.purgeBullets();
+
+        this.updateGameStatus();
+
+        this.updateScore();
 
         this.detectGameOver();
       } else {
@@ -320,11 +356,15 @@ class ShootingGame {
         break;
       }
     }
+  }
 
+  updateGameStatus() {
     if (this.gameOver) {
       this.gameStatus.innerHTML = "Game Over!!!";
     }
+  }
 
+  updateScore() {
     this.score.innerHTML = "Score : " + this.shooter.getScore();
   }
 
