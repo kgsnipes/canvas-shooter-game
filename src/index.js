@@ -1,16 +1,30 @@
 import "./styles.css";
 
-const CANVAS_WIDTH = 500;
-const CANVAS_HEIGHT = 500;
+//defines global game constants
+//canvas width in pixels
+const CANVAS_WIDTH = 300;
+//canvas height in pixels
+const CANVAS_HEIGHT = 300;
+//shooter size in pixels
 const SHOOTER_SIZE = 10;
+//enemy size in pixels
 const ENEMY_SIZE = 10;
+//bullet size in pixels
 const BULLET_SIZE = 5;
+//number of enemies to be created
 const ENEMY_LIMIT = 5;
+//the pace at which the enemy moves in pixels.
 const ENEMY_PACE = 0.35;
+//color for the shooter
 const SHOOTER_COLOR = "blue";
+//color for the enemy
 const ENEMY_COLOR = "red";
+//color for the bullet
 const BULLET_COLOR = "orange";
+//travelling pace for the bullet;
+const BULLET_PACE = 2;
 
+//defining the enemy
 class Enemy {
   constructor(x, y) {
     this.x = x;
@@ -18,37 +32,42 @@ class Enemy {
     this.hit = false;
   }
 
+  //moving action for the enemy towards the shooter
   moveForward() {
     if (!this.hasReachedTarget()) {
       this.y += ENEMY_PACE;
     }
   }
-
+  // returns the position of the enemy
   getPosition() {
     return { x: this.x, y: this.y };
   }
 
+  //to check if the enemy has reached the target
   hasReachedTarget() {
     return this.y >= CANVAS_HEIGHT - SHOOTER_SIZE;
   }
 
+  // returns if the enemy got hit by the bullet
   isHit() {
     return this.hit;
   }
-
+  //to register the hit on the enemy.
   down() {
     this.hit = true;
   }
 }
 
+//defining the bullet
 class Bullet {
   constructor(position) {
     this.x = position.x;
     this.y = position.y;
   }
 
+  //the acceleration of the bullet
   moveForward() {
-    if (!this.hasReachedBoundary()) this.y -= 1;
+    if (!this.hasReachedBoundary()) this.y -= BULLET_PACE;
   }
 
   getPosition() {
@@ -232,7 +251,9 @@ class ShootingGame {
         bullet.getPosition().x >= this.enemies[index].getPosition().x &&
         bullet.getPosition().x <=
           this.enemies[index].getPosition().x + ENEMY_SIZE &&
-        bullet.getPosition().y === this.enemies[index].getPosition().y
+        bullet.getPosition().y >=
+          this.enemies[index].getPosition().y - ENEMY_SIZE &&
+        bullet.getPosition().y <= this.enemies[index].getPosition().y
       ) {
         hits.push(index);
         this.enemies[index].down();
@@ -304,7 +325,7 @@ class ShootingGame {
       this.gameStatus.innerHTML = "Game Over!!!";
     }
 
-    this.score.innerHTML = "Score " + this.shooter.getScore();
+    this.score.innerHTML = "Score : " + this.shooter.getScore();
   }
 
   getBullets() {
