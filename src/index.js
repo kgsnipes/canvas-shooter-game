@@ -253,12 +253,11 @@ class ShootingGame {
 
         this.purgeBullets();
 
+        this.detectGameOver();
+
         this.updateGameStatus();
 
         this.updateScore();
-
-        this.detectGameOver();
-      } else {
       }
     }
 
@@ -352,6 +351,7 @@ class ShootingGame {
   detectGameOver() {
     for (let enemy in this.enemies) {
       if (this.enemies[enemy].hasReachedTarget()) {
+        console.log("done");
         this.gameOver = true;
         break;
       }
