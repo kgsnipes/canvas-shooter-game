@@ -1,5 +1,7 @@
 /*
-Description: i am bored, trying to have some fun.
+Description: some weekend doodling .
+
+arcade style shooting game
 
 Author : kaushik ganguly
 
