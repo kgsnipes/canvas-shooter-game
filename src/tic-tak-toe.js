@@ -9,6 +9,26 @@ export class TickTakToe {
   }
 
   init() {
+    this.gridDrawn = false;
+    this.firstPlayer = true;
+
+    this.matrix = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ];
+
+    this.boxes = [];
+
+    this.initDom();
+
+    //registering the animation frame rendering
+    window.requestAnimationFrame(() => {
+      this.draw();
+    });
+  }
+
+  initDom() {
     this.gameTitle = document.createElement("h3");
     this.gameTitle.innerHTML = "Tic-Tac-Toe";
     this.container.append(this.gameTitle);
@@ -21,20 +41,29 @@ export class TickTakToe {
 
     this.container.append(this.canvas);
 
-    this.gridDrawn = false;
-
-    this.firstPlayer = true;
-
-    this.matrix = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0]
-    ];
-
-    //registering the animation frame rendering
-    window.requestAnimationFrame(() => {
-      this.draw();
+    let self = this;
+    this.canvas.addEventListener("click", (evt) => {
+      let mousePosition = self.getMousePositionOnCanvas(evt);
+      let hitBox = self.checkHit(mousePosition);
+      if (hitBox.index > -1) {
+        self.context.fillText(
+          self.firstPlayer ? "X" : "O",
+          hitBox.box.dimensions.x1 +
+            (hitBox.box.dimensions.x2 - hitBox.box.dimensions.x1) / 2,
+          hitBox.box.dimensions.y1 +
+            (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
+        );
+        self.firstPlayer = !self.firstPlayer;
+      }
     });
+  }
+
+  getMousePositionOnCanvas(event) {
+    let rect = this.canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
   }
 
   draw() {
@@ -82,18 +111,46 @@ export class TickTakToe {
       this.context.closePath();
       this.context.stroke();
 
-      let boxes = 1;
-      for (let y = 0; y < CANVAS_HEIGHT; y = y + cellHeight) {
-        for (let x = 0; x < CANVAS_WIDTH; x = x + cellWidth) {
-          this.context.fillStyle = "blue";
-          this.context.fillRect(x, y, cellWidth - 1, cellHeight - 1);
-          console.log("box", boxes);
-
-          boxes++;
-        }
-      }
+      this.recordBoxes(cellWidth, cellHeight);
 
       this.gridDrawn = true;
     }
+  }
+
+  recordBoxes(cellWidth, cellHeight) {
+    let box = 0;
+    for (let y = 0; y < CANVAS_HEIGHT; y = y + cellHeight) {
+      for (let x = 0; x < CANVAS_WIDTH; x = x + cellWidth) {
+        let boxRect = {
+          x1: x,
+          y1: y,
+          x2: x + cellWidth - 1,
+          y2: y + cellHeight - 1
+        };
+        this.boxes.push({ dimensions: boxRect, boxNumber: box });
+        box++;
+      }
+    }
+  }
+
+  checkHit(position) {
+    let boxIndex = -1;
+    let boxObj = {};
+    console.log("position", position);
+    for (let box of this.boxes) {
+      if (
+        position.x >= box.dimensions.x1 &&
+        position.x <= box.dimensions.x2 &&
+        position.y >= box.dimensions.y1 &&
+        position.y <= box.dimensions.y2
+      ) {
+        boxIndex = box.boxNumber;
+        boxObj = box;
+        console.log(box.dimensions);
+        break;
+      }
+    }
+
+    return { index: boxIndex, box: boxObj };
   }
 }

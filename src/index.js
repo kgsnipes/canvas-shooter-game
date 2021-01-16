@@ -1,5 +1,5 @@
 import "./styles.css";
-import { ShootingGame } from "./shooting_game";
+//import { ShootingGame } from "./shooting_game";
 import { TickTakToe } from "./tic-tak-toe";
 
 /*let shootingGame = new ShootingGame(document.getElementById("app"));
