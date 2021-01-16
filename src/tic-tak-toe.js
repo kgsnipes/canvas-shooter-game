@@ -3,6 +3,8 @@ const CANVAS_WIDTH = 300;
 //canvas height in pixels
 const CANVAS_HEIGHT = 300;
 
+const FONT_SIZE = "20px serif";
+
 export class TickTakToe {
   constructor(div) {
     this.container = div;
@@ -27,6 +29,7 @@ export class TickTakToe {
   }
 
   initDom() {
+    let self = this;
     this.gameTitle = document.createElement("h3");
     this.gameTitle.innerHTML = "Tic-Tac-Toe";
     this.container.append(this.gameTitle);
@@ -39,12 +42,24 @@ export class TickTakToe {
 
     this.container.append(this.canvas);
 
-    let self = this;
+    this.gameOverText = document.createElement("h5");
+    this.gameOverText.innerHTML = "";
+    this.container.append(this.gameOverText);
+
+    this.gameRestartButton = document.createElement("button");
+    this.gameRestartButton.innerHTML = "Restart";
+    this.container.append(this.gameRestartButton);
+
+    this.gameRestartButton.addEventListener("click", () => {
+      self.container.replaceChildren();
+      self.init();
+    });
+
     this.canvas.addEventListener("click", (evt) => {
       let mousePosition = self.getMousePositionOnCanvas(evt);
       let hitBox = self.checkHit(mousePosition);
       if (hitBox.index > -1 && self.matrix[hitBox.index] === -1) {
-        self.context.font = "20px serif";
+        self.context.font = FONT_SIZE;
         self.context.fillText(
           self.firstPlayer ? "X" : "O",
           hitBox.box.dimensions.x1 +
@@ -53,12 +68,15 @@ export class TickTakToe {
             (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
         );
         self.matrix[hitBox.index] = self.firstPlayer ? 1 : 2;
+        self.checkForWin();
+        if (self.gameOver) {
+          self.gameOverText.innerHTML =
+            "Game Over!! Winner is " +
+            (self.firstPlayer ? "First" : "Second") +
+            " player.";
+          console.log("Game Over");
+        }
         self.firstPlayer = !self.firstPlayer;
-      }
-
-      self.checkForWin();
-      if (self.gameOver) {
-        console.log("Game Over");
       }
     });
   }
