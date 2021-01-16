@@ -12,13 +12,11 @@ export class TickTakToe {
     this.gridDrawn = false;
     this.firstPlayer = true;
 
-    this.matrix = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0]
-    ];
+    this.matrix = [-1, -1, -1, -1, -1, -1, -1, -1, -1];
 
     this.boxes = [];
+
+    this.gameOver = false;
 
     this.initDom();
 
@@ -45,7 +43,7 @@ export class TickTakToe {
     this.canvas.addEventListener("click", (evt) => {
       let mousePosition = self.getMousePositionOnCanvas(evt);
       let hitBox = self.checkHit(mousePosition);
-      if (hitBox.index > -1) {
+      if (hitBox.index > -1 && self.matrix[hitBox.index] === -1) {
         self.context.fillText(
           self.firstPlayer ? "X" : "O",
           hitBox.box.dimensions.x1 +
@@ -53,7 +51,13 @@ export class TickTakToe {
           hitBox.box.dimensions.y1 +
             (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
         );
+        self.matrix[hitBox.index] = self.firstPlayer ? 1 : 2;
         self.firstPlayer = !self.firstPlayer;
+      }
+
+      self.checkForWin();
+      if (self.gameOver) {
+        console.log("Game Over");
       }
     });
   }
@@ -146,11 +150,26 @@ export class TickTakToe {
       ) {
         boxIndex = box.boxNumber;
         boxObj = box;
-        console.log(box.dimensions);
         break;
       }
     }
 
     return { index: boxIndex, box: boxObj };
+  }
+
+  checkForWin() {
+    let m = this.matrix;
+    if (
+      (m[0] == m[1]) == m[2] ||
+      (m[3] == m[4]) == m[5] ||
+      (m[6] == m[7]) == m[8] ||
+      (m[0] == m[4]) == m[8] ||
+      (m[2] == m[4]) == m[6] ||
+      (m[0] == m[3]) == m[6] ||
+      (m[1] == m[4]) == m[7] ||
+      (m[2] == m[5]) == m[8]
+    ) {
+      this.gameOver = true;
+    }
   }
 }
