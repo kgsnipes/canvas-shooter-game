@@ -44,6 +44,7 @@ export class TickTakToe {
       let mousePosition = self.getMousePositionOnCanvas(evt);
       let hitBox = self.checkHit(mousePosition);
       if (hitBox.index > -1 && self.matrix[hitBox.index] === -1) {
+        self.context.font = "20px serif";
         self.context.fillText(
           self.firstPlayer ? "X" : "O",
           hitBox.box.dimensions.x1 +
