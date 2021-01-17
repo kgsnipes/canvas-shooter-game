@@ -14,7 +14,7 @@ export class TickTakToe {
     this.gridDrawn = false;
     this.firstPlayer = true;
 
-    this.matrix = [-1, -1, -1, -1, -1, -1, -1, -1, -1];
+    this.matrix = ["-1", "-1", "-1", "-1", "-1", "-1", "-1", "-1", "-1"];
 
     this.boxes = [];
 
@@ -33,6 +33,10 @@ export class TickTakToe {
     this.gameTitle = document.createElement("h3");
     this.gameTitle.innerHTML = "Tic-Tac-Toe";
     this.container.append(this.gameTitle);
+
+    this.playerTurn = document.createElement("h5");
+    this.playerTurn.innerHTML = "Player Turn : X";
+    this.container.append(this.playerTurn);
 
     this.canvas = document.createElement("canvas");
     this.canvas.width = CANVAS_WIDTH;
@@ -61,9 +65,17 @@ export class TickTakToe {
       if (
         !self.gameOver &&
         hitBox.index > -1 &&
-        self.matrix[hitBox.index] === -1
+        self.matrix[hitBox.index] === "-1"
       ) {
         self.context.font = FONT_SIZE;
+        console.log(
+          "x,y",
+          hitBox.box.dimensions.x1 +
+            (hitBox.box.dimensions.x2 - hitBox.box.dimensions.x1) / 2,
+          hitBox.box.dimensions.y1 +
+            (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
+        );
+
         self.context.fillText(
           self.firstPlayer ? "X" : "O",
           hitBox.box.dimensions.x1 +
@@ -71,7 +83,7 @@ export class TickTakToe {
           hitBox.box.dimensions.y1 +
             (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
         );
-        self.matrix[hitBox.index] = self.firstPlayer ? 1 : 2;
+        self.matrix[hitBox.index] = self.firstPlayer ? "1" : "2";
         self.checkForWin();
         if (self.gameOver) {
           self.gameOverText.innerHTML =
@@ -81,6 +93,12 @@ export class TickTakToe {
           console.log("Game Over");
         }
         self.firstPlayer = !self.firstPlayer;
+        self.playerTurn.innerHTML = self.firstPlayer
+          ? "Player Turn : X"
+          : "Player Turn : O";
+        if (self.gameOver) {
+          self.playerTurn.innerHTML = "";
+        }
       }
     });
   }
@@ -94,12 +112,12 @@ export class TickTakToe {
   }
 
   draw() {
-    let self = this;
+    // let self = this;
 
     this.drawGrid();
-    window.requestAnimationFrame(() => {
+    /* window.requestAnimationFrame(() => {
       self.draw();
-    });
+    });*/
   }
 
   drawGrid() {
@@ -182,17 +200,24 @@ export class TickTakToe {
 
   checkForWin() {
     let m = this.matrix;
+    console.log(m[0], m[1], m[2]);
+    console.log(m[3], m[4], m[5]);
+    console.log(m[6], m[7], m[8]);
     if (
-      (m[0] == m[1]) == m[2] ||
-      (m[3] == m[4]) == m[5] ||
-      (m[6] == m[7]) == m[8] ||
-      (m[0] == m[4]) == m[8] ||
-      (m[2] == m[4]) == m[6] ||
-      (m[0] == m[3]) == m[6] ||
-      (m[1] == m[4]) == m[7] ||
-      (m[2] == m[5]) == m[8]
+      this.combinationMatches(m[0], m[1], m[2]) ||
+      this.combinationMatches(m[3], m[4], m[5]) ||
+      this.combinationMatches(m[6], m[7], m[8]) ||
+      this.combinationMatches(m[0], m[4], m[8]) ||
+      this.combinationMatches(m[2], m[4], m[6]) ||
+      this.combinationMatches(m[0], m[3], m[6]) ||
+      this.combinationMatches(m[1], m[4], m[7]) ||
+      this.combinationMatches(m[2], m[5], m[8])
     ) {
       this.gameOver = true;
     }
+  }
+
+  combinationMatches(a, b, c) {
+    return a !== "-1" && a === b && a === c;
   }
 }
