@@ -21,6 +21,8 @@ export class TickTakToe {
 
     this.gameOver = false;
 
+    this.winningCombination = [];
+
     this.initDom();
 
     //registering the animation frame rendering
@@ -92,6 +94,7 @@ export class TickTakToe {
             "Game Over!! Winner is " +
             (self.firstPlayer ? "First" : "Second") +
             " player.";
+          self.drawWinningMove();
           console.log("Game Over");
         }
         self.firstPlayer = !self.firstPlayer;
@@ -200,22 +203,87 @@ export class TickTakToe {
   }
 
   checkForWin() {
-    let m = this.matrix;
     if (
-      this.combinationMatches(m[0], m[1], m[2]) ||
-      this.combinationMatches(m[3], m[4], m[5]) ||
-      this.combinationMatches(m[6], m[7], m[8]) ||
-      this.combinationMatches(m[0], m[4], m[8]) ||
-      this.combinationMatches(m[2], m[4], m[6]) ||
-      this.combinationMatches(m[0], m[3], m[6]) ||
-      this.combinationMatches(m[1], m[4], m[7]) ||
-      this.combinationMatches(m[2], m[5], m[8])
+      this.combinationMatches(0, 1, 2) ||
+      this.combinationMatches(3, 4, 5) ||
+      this.combinationMatches(6, 7, 8) ||
+      this.combinationMatches(0, 4, 8) ||
+      this.combinationMatches(2, 4, 6) ||
+      this.combinationMatches(0, 3, 6) ||
+      this.combinationMatches(1, 4, 7) ||
+      this.combinationMatches(2, 5, 8)
     ) {
       this.gameOver = true;
     }
   }
 
   combinationMatches(a, b, c) {
-    return a !== "-1" && a === b && a === c;
+    let isWin =
+      this.matrix[a] !== "-1" &&
+      this.matrix[a] === this.matrix[b] &&
+      this.matrix[a] === this.matrix[c];
+    if (isWin) {
+      this.winningCombination = [a, b, c];
+    }
+    return isWin;
+  }
+
+  drawWinningMove() {
+    let x1 = 0;
+    let x2 = 0;
+    let y1 = 0;
+    let y2 = 0;
+
+    let m = this.winningCombination;
+
+    if (m[0] === 0 && m[2] === 2) {
+      x1 = 0;
+      y1 = CANVAS_HEIGHT / 8;
+      x2 = CANVAS_WIDTH;
+      y2 = CANVAS_HEIGHT / 8;
+    } else if (m[0] === 0 && m[2] === 6) {
+      x1 = CANVAS_WIDTH / 8;
+      y1 = 0;
+      x2 = CANVAS_WIDTH / 8;
+      y2 = CANVAS_HEIGHT;
+    } else if (m[0] === 0 && m[2] === 8) {
+      x1 = 0;
+      y1 = 0;
+      x2 = CANVAS_WIDTH;
+      y2 = CANVAS_HEIGHT;
+    } else if (m[0] === 3 && m[2] === 5) {
+      x1 = 0;
+      y1 = CANVAS_HEIGHT / 2;
+      x2 = CANVAS_WIDTH;
+      y2 = CANVAS_HEIGHT / 2;
+    } else if (m[0] === 6 && m[2] === 8) {
+      x1 = 0;
+      y1 = CANVAS_HEIGHT / 8;
+      x2 = CANVAS_WIDTH;
+      y2 = CANVAS_HEIGHT / 8;
+    } else if (m[0] === 2 && m[2] === 6) {
+      x1 = CANVAS_WIDTH;
+      y1 = 0;
+      x2 = 0;
+      y2 = CANVAS_HEIGHT;
+    } else if (m[0] === 1 && m[2] === 7) {
+      x1 = CANVAS_WIDTH / 2;
+      y1 = 0;
+      x2 = CANVAS_WIDTH / 2;
+      y2 = CANVAS_HEIGHT;
+    } else if (m[0] === 2 && m[2] === 8) {
+      x1 = CANVAS_WIDTH - CANVAS_WIDTH / 6;
+      y1 = 0;
+      x2 = CANVAS_WIDTH - CANVAS_WIDTH / 6;
+      y2 = CANVAS_HEIGHT;
+    }
+
+    this.context.lineWidth = 2;
+    this.context.strokeStyle = "red";
+    this.context.beginPath();
+    this.context.moveTo(x1, y1);
+    this.context.lineTo(x2, y2);
+    this.context.closePath();
+    this.context.stroke();
   }
 }
