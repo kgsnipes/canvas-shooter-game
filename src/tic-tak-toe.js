@@ -3,7 +3,8 @@ const CANVAS_WIDTH = 300;
 //canvas height in pixels
 const CANVAS_HEIGHT = 300;
 
-const FONT_SIZE = "20px serif";
+const FONT_SIZE = 25;
+const FONT_SIZE_STR = FONT_SIZE + "px serif";
 
 export class TickTakToe {
   constructor(div) {
@@ -43,6 +44,7 @@ export class TickTakToe {
     this.canvas.height = CANVAS_HEIGHT;
 
     this.context = this.canvas.getContext("2d");
+    this.context.scale(1, 1);
 
     this.container.append(this.canvas);
 
@@ -67,22 +69,22 @@ export class TickTakToe {
         hitBox.index > -1 &&
         self.matrix[hitBox.index] === "-1"
       ) {
-        self.context.font = FONT_SIZE;
-        console.log(
-          "x,y",
-          hitBox.box.dimensions.x1 +
-            (hitBox.box.dimensions.x2 - hitBox.box.dimensions.x1) / 2,
-          hitBox.box.dimensions.y1 +
-            (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
-        );
+        self.context.font = FONT_SIZE_STR;
 
-        self.context.fillText(
-          self.firstPlayer ? "X" : "O",
-          hitBox.box.dimensions.x1 +
-            (hitBox.box.dimensions.x2 - hitBox.box.dimensions.x1) / 2,
-          hitBox.box.dimensions.y1 +
-            (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2
-        );
+        let posX = hitBox.box.dimensions.x1;
+
+        let posY = hitBox.box.dimensions.y1;
+
+        let offsetX =
+          (hitBox.box.dimensions.x2 - hitBox.box.dimensions.x1) / 2 -
+          FONT_SIZE / 2;
+        let offsetY = (hitBox.box.dimensions.y2 - hitBox.box.dimensions.y1) / 2;
+
+        posX = posX + offsetX;
+        posY = posY + offsetY;
+
+        self.context.fillText(self.firstPlayer ? "X" : "O", posX, posY);
+
         self.matrix[hitBox.index] = self.firstPlayer ? "1" : "2";
         self.checkForWin();
         if (self.gameOver) {
@@ -181,7 +183,6 @@ export class TickTakToe {
   checkHit(position) {
     let boxIndex = -1;
     let boxObj = {};
-    console.log("position", position);
     for (let box of this.boxes) {
       if (
         position.x >= box.dimensions.x1 &&
@@ -200,9 +201,6 @@ export class TickTakToe {
 
   checkForWin() {
     let m = this.matrix;
-    console.log(m[0], m[1], m[2]);
-    console.log(m[3], m[4], m[5]);
-    console.log(m[6], m[7], m[8]);
     if (
       this.combinationMatches(m[0], m[1], m[2]) ||
       this.combinationMatches(m[3], m[4], m[5]) ||
