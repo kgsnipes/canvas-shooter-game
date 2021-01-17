@@ -242,9 +242,9 @@ export class TickTakToe {
       x2 = CANVAS_WIDTH;
       y2 = CANVAS_HEIGHT / 8;
     } else if (m[0] === 0 && m[2] === 6) {
-      x1 = CANVAS_WIDTH / 8;
+      x1 = CANVAS_WIDTH / 6;
       y1 = 0;
-      x2 = CANVAS_WIDTH / 8;
+      x2 = CANVAS_WIDTH / 6;
       y2 = CANVAS_HEIGHT;
     } else if (m[0] === 0 && m[2] === 8) {
       x1 = 0;
@@ -258,9 +258,9 @@ export class TickTakToe {
       y2 = CANVAS_HEIGHT / 2;
     } else if (m[0] === 6 && m[2] === 8) {
       x1 = 0;
-      y1 = CANVAS_HEIGHT / 8;
+      y1 = CANVAS_HEIGHT - CANVAS_HEIGHT / 6;
       x2 = CANVAS_WIDTH;
-      y2 = CANVAS_HEIGHT / 8;
+      y2 = CANVAS_HEIGHT - CANVAS_HEIGHT / 6;
     } else if (m[0] === 2 && m[2] === 6) {
       x1 = CANVAS_WIDTH;
       y1 = 0;
