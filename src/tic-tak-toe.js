@@ -278,8 +278,8 @@ export class TickTakToe {
       y2 = CANVAS_HEIGHT;
     }
 
-    this.context.lineWidth = 2;
-    this.context.strokeStyle = "red";
+    this.context.lineWidth = 3;
+    this.context.strokeStyle = "green";
     this.context.beginPath();
     this.context.moveTo(x1, y1);
     this.context.lineTo(x2, y2);
